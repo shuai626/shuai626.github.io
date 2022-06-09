@@ -192,10 +192,11 @@
       async function listUpcomingEvents() {
         let response;
         const date = new Date();
+        const minDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
         try {
           const request = {
             'calendarId': 'ibcdtku2q0bp5mkp58meu5qu0o@group.calendar.google.com',
-            'timeMin': new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString(),
+            'timeMin': minDate.toISOString(),
             'showDeleted': false,
             'singleEvents': true,
             'maxResults': 1,
@@ -216,6 +217,9 @@
         
         // Flatten to string to display
         const output = events[0].start.date;
+
+        console.log(date.toString());
+        console.log(minDate.toString());
         
         return output
       }
