@@ -139,14 +139,14 @@
         var countDownDateStr = await listUpcomingEvents();
 
         var countDownDate = new Date(countDownDateStr).getTime();
-        console.log(countDownDate);
+        console.log(new Date(countDownDateStr).getTimezoneOffset());
 
         // Update the count down every 1 second
         var x = setInterval(function() {
 
           // Get today's date and time
           var now = new Date().getTime();
-          console.log(now);
+          console.log(new Date().getTimezoneOffset());
 
           // Find the distance between now and the count down date
           var distance = countDownDate - now;
@@ -215,7 +215,6 @@
         
         // Flatten to string to display
         const output = events[0].start.date;
-        console.log(output);
 
         return output
       }
