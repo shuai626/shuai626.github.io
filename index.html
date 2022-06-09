@@ -201,7 +201,7 @@
             'singleEvents': true,
             'maxResults': 1,
             'orderBy': 'startTime',
-            'timeZone': 'UTC',
+            // 'timeZone': 'UTC',
           };
           response = await gapi.client.calendar.events.list(request);
         } catch (err) {
