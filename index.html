@@ -139,14 +139,12 @@
         var countDownDateStr = await listUpcomingEvents();
 
         var countDownDate = new Date(countDownDateStr).getTime();
-        console.log(new Date(countDownDateStr).getTimezoneOffset());
 
         // Update the count down every 1 second
         var x = setInterval(function() {
 
           // Get today's date and time
           var now = new Date().getTime();
-          console.log(new Date().getTimezoneOffset());
 
           // Find the distance between now and the count down date
           var distance = countDownDate - now;
@@ -199,7 +197,7 @@
             'singleEvents': true,
             'maxResults': 1,
             'orderBy': 'startTime',
-            'timeZone': 'UTC',
+            //'timeZone': 'UTC',
           };
           response = await gapi.client.calendar.events.list(request);
         } catch (err) {
