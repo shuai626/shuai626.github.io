@@ -197,7 +197,7 @@
             'singleEvents': true,
             'maxResults': 1,
             'orderBy': 'startTime',
-            //'timeZone': 'UTC',
+            'timeZone': 'UTC',
           };
           response = await gapi.client.calendar.events.list(request);
         } catch (err) {
@@ -213,6 +213,8 @@
         
         // Flatten to string to display
         const output = events[0].start.date;
+
+        console.log(output);
 
         return output
       }
