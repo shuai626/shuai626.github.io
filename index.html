@@ -194,7 +194,7 @@
         try {
           const request = {
             'calendarId': 'ibcdtku2q0bp5mkp58meu5qu0o@group.calendar.google.com',
-            'timeMin': (new Date()).toISOString(),
+            'timeMin': (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString(),
             'showDeleted': false,
             'singleEvents': true,
             'maxResults': 1,
@@ -215,9 +215,7 @@
         
         // Flatten to string to display
         const output = events[0].start.date;
-
-        console.log(output);
-
+        
         return output
       }
     </script>
