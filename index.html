@@ -1,1 +1,228 @@
-Hello World
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dend Countdown</title>
+    <meta charset="utf-8" />
+    <style>
+      .button {
+        background-color: #E8DEFC; /* Green */
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        border-radius: 12px;
+        transition-duration: 0.4s;
+        margin-left:auto;
+        margin-right:auto;
+      }
+
+      .button:hover {
+        background-color: #ebe4f9; /* Green */
+        color: white;
+      }
+
+      .roundcorners {
+        border-radius: 15px 50px;
+        background: #f2ffdf;
+        margin-left:auto;
+        margin-right:auto;
+      }
+    </style>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  </head>
+  <body style="background-color:#9AC791;">
+    <!--Add buttons to initiate auth sequence and sign out-->
+    <!-- <button id="authorize_button" class="button" onclick="handleAuthClick()">Authorize</button> -->
+    <!-- <button id="signout_button" class="button" onclick="handleSignoutClick()">Sign Out</button> -->
+    <!-- <div style="text-align:center;font-size:400%;white-space: pre-wrap;"><b>Time Until Next Dend:</b></div> -->
+    <pre id="content" class="roundcorners" style="text-align:center;font-size:400%;white-space: pre-wrap;"></pre>
+    <p align="center">
+    <iframe id="embed_calendar" src="https://calendar.google.com/calendar/embed?src=ibcdtku2q0bp5mkp58meu5qu0o%40group.calendar.google.com&ctz=America%2FNew_York" style="border: 0;text-align:center; margin-left: auto;margin-right: auto;" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+    </p>
+
+    <script type="text/javascript">
+      /* exported gapiLoaded */
+      /* exported gisLoaded */
+      /* exported handleAuthClick */
+      /* exported handleSignoutClick */
+
+      // TODO(developer): Set to client ID and API key from the Developer Console
+      const CLIENT_ID = '339149346252-7t51rld0aktebjsklhbprm2kaaj6r3vj.apps.googleusercontent.com';
+      const API_KEY = 'AIzaSyDZe6ELcxF90ALHH_tAcz_ZJo2E8POu1yk';
+
+      // Discovery doc URL for APIs used by the quickstart
+      const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest';
+
+      // Authorization scopes required by the API; multiple scopes can be
+      // included, separated by spaces.
+      const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
+
+      let tokenClient;
+      let gapiInited = false;
+      let gisInited = false;
+
+      // document.getElementById('authorize_button').style.visibility = 'hidden';
+      // document.getElementById('signout_button').style.visibility = 'hidden';
+      document.getElementById('embed_calendar').style.visibility = 'hidden';
+
+      /**
+       * Callback after api.js is loaded.
+       */
+      function gapiLoaded() {
+        gapi.load('client', intializeGapiClient);
+      }
+
+      /**
+       * Callback after the API client is loaded. Loads the
+       * discovery doc to initialize the API.
+       */
+      async function intializeGapiClient() {
+        await gapi.client.init({
+          apiKey: API_KEY,
+          discoveryDocs: [DISCOVERY_DOC],
+        });
+        gapiInited = true;
+        maybeEnableButtons();
+      }
+
+      /**
+       * Callback after Google Identity Services are loaded.
+       */
+      function gisLoaded() {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: CLIENT_ID,
+          scope: SCOPES,
+          callback: '', // defined later
+        });
+        gisInited = true;
+        maybeEnableButtons();
+      }
+
+      /**
+       * Enables user interaction after all libraries are loaded.
+       */
+      function maybeEnableButtons() {
+        if (gapiInited && gisInited) {
+          handleAuthClick();
+        }
+      }
+
+      /**
+       *  Sign in the user upon button click.
+       */
+      function handleAuthClick() {
+        tokenClient.callback = async (resp) => {
+          if (resp.error !== undefined) {
+            throw (resp);
+          }
+          // document.getElementById('signout_button').style.visibility = 'visible';
+          // document.getElementById('authorize_button').innerText = 'Refresh';
+          document.getElementById('embed_calendar').style.visibility = 'visible';
+          await runCountDown();
+        };
+
+        if (gapi.client.getToken() === null) {
+          // Prompt the user to select a Google Account and ask for consent to share their data
+          // when establishing a new session.
+          tokenClient.requestAccessToken({prompt: 'consent'});
+        } else {
+          // Skip display of account chooser and consent dialog for an existing session.
+          tokenClient.requestAccessToken({prompt: ''});
+        }
+      }
+
+      async function runCountDown() {
+        // Set the date we're counting down to
+        var countDownDateStr = await listUpcomingEvents();
+        var date = new Date(countDownDateStr);
+        
+        // Move UTC to local time zone
+        var countDownDate = date.getTime() + date.getTimezoneOffset() * 60000;
+
+        // Update the count down every 1 second
+        var x = setInterval(function() {
+
+          // Get today's date and time
+          var now = new Date().getTime();
+
+          // Find the distance between now and the count down date
+          var distance = countDownDate - now;
+
+          // Time calculations for days, hours, minutes and seconds
+          var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+          var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+          // Display the result in the element with id="demo"
+          document.getElementById("content").innerHTML = days + "d " + hours + "h "
+          + minutes + "m " + seconds + "s ";
+
+          // If the count down is finished, write some text
+          if (distance < 0) {
+            clearInterval(x);
+            document.getElementById("content").innerHTML = "EXPIRED";
+          }
+        }, 1000);
+      }
+
+      /**
+       *  Sign out the user upon button click.
+       */
+      function handleSignoutClick() {
+        const token = gapi.client.getToken();
+        if (token !== null) {
+          google.accounts.oauth2.revoke(token.access_token);
+          gapi.client.setToken('');
+          // document.getElementById('content').innerText = '';
+          // document.getElementById('authorize_button').innerText = 'Authorize';
+          // document.getElementById('signout_button').style.visibility = 'hidden';
+          document.getElementById('embed_calendar').style.visibility = 'hidden';
+        }
+      }
+
+      /**
+       * Print the summary and start datetime/date of the next ten events in
+       * the authorized user's calendar. If no events are found an
+       * appropriate message is printed.
+       */
+      async function listUpcomingEvents() {
+        let response;
+        const date = new Date();
+        const minDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+        try {
+          const request = {
+            'calendarId': 'ibcdtku2q0bp5mkp58meu5qu0o@group.calendar.google.com',
+            'timeMin': minDate.toISOString(),
+            'showDeleted': false,
+            'singleEvents': true,
+            'maxResults': 1,
+            'orderBy': 'startTime',
+            'timeZone': 'UTC',
+          };
+          response = await gapi.client.calendar.events.list(request);
+        } catch (err) {
+          document.getElementById('content').innerText = err.message;
+          return;
+        }
+
+        const events = response.result.items;
+        if (!events || events.length == 0) {
+          document.getElementById('content').innerText = 'No events found.';
+          return;
+        }
+        
+        // Flatten to string to display
+        const output = events[0].start.date;
+        
+        return output
+      }
+    </script>
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+    <script async defer src="https://cdn.logwork.com/widget/countdown.js"></script>
+  </body>
+</html>
