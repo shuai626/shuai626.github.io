@@ -137,7 +137,9 @@
       async function runCountDown() {
         // Set the date we're counting down to
         var countDownDateStr = await listUpcomingEvents();
+        console.log(countDownDateStr);
         var date = new Date(countDownDateStr);
+        console.log(date);
         
         // Move UTC to local time zone
         var countDownDate = date.getTime() + date.getTimezoneOffset() * 60000;
