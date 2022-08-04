@@ -137,9 +137,7 @@
       async function runCountDown() {
         // Set the date we're counting down to
         var countDownDateStr = await listUpcomingEvents();
-        console.log(countDownDateStr);
         var date = new Date(countDownDateStr);
-        console.log(date);
         
         // Move UTC to local time zone
         var countDownDate = date.getTime() + date.getTimezoneOffset() * 60000;
@@ -216,13 +214,16 @@
           document.getElementById('content').innerText = 'No events found.';
           return;
         }
-        console.log(events[0]);
-        // Flatten to string to display
-        const output = events[0].start.date;
-
-        console.log(output);
-        
-        return output
+        // Flatten to string to display 
+        if (events[0].start.date) {
+          const output = events[0].start.date;
+          return output
+        }
+        // Handle single-day event case
+        else {
+          const output = events[0].start.dateTime;
+          return output
+        }
       }
     </script>
     <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
